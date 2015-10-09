@@ -1,5 +1,5 @@
 /*
-Project: cti-angular-gantt v2.0.18 - Gantt chart component for AngularJS
+Project: cti-angular-gantt v2.0.19 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -1290,9 +1290,9 @@ angular.module('ang-drag-drop',[])
 }());
 
 
-(function(){
+(function () {
     'use strict';
-    angular.module('gantt.associator', ['gantt']).directive('ganttAssociator', ['$compile', '$document', function($compile, $document) {
+    angular.module('gantt.associator', ['gantt']).directive('ganttAssociator', ['$compile', '$document', function ($compile, $document) {
         return {
             restrict: 'E',
             require: '^gantt',
@@ -1300,13 +1300,13 @@ angular.module('ang-drag-drop',[])
                 enabled: '=?',
                 tasks: '=?'
             },
-            link: function(scope, element, attrs, ganttCtrl) {
+            link: function (scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
                 var x1, y1;
                 scope.rows = [];
 
                 // Load options from global options attribute.
-                if (scope.options && typeof(scope.options.bounds) === 'object') {
+                if (scope.options && typeof (scope.options.bounds) === 'object') {
                     for (var option in scope.options.bounds) {
                         scope[option] = scope.options[option];
                     }
@@ -1316,7 +1316,9 @@ angular.module('ang-drag-drop',[])
                     scope.enabled = true;
                 }
 
-                api.directives.on.new(scope, function(directiveName, bodyScope, bodyElement) {
+
+
+                api.directives.on.new(scope, function (directiveName, bodyScope, bodyElement) {
                     if (directiveName === 'ganttRow') {
                         scope.rows.push(bodyScope);
                     }
@@ -1334,112 +1336,112 @@ angular.module('ang-drag-drop',[])
 
                         bodyElement.prepend(canvas);
                         var ctx = canvas.getContext('2d');
-                        scope.$watchCollection('tasks', function(newArray) {
-                            ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        scope.$watchCollection('tasks', function (newArray) {
+                            if (scope.enabled) {
+                                ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-                            if (newArray.length === 1 && newArray[0].orderPosition === 'single'){
-                                return;
-                            } else if (newArray.length > 0) {
-                                canvas.style.width ='100%';
-                                canvas.style.height='100%';
+                                if (newArray.length === 1 && newArray[0].orderPosition === 'single') {
+                                    return;
+                                } else if (newArray.length > 0) {
+                                    canvas.style.width = '100%';
+                                    canvas.style.height = '100%';
 
-                                canvas.width  = canvas.offsetWidth;
-                                canvas.height = canvas.offsetHeight;
+                                    canvas.width = canvas.offsetWidth;
+                                    canvas.height = canvas.offsetHeight;
 
-                                var parentRect = bodyElement[0].getBoundingClientRect();
-                                var rows = scope.rows;
-
-
-                                newArray.sort(function (a, b){
-                                    if (a.from < b.from){
-                                        return -1;
-                                    } else if (a.from > b.from){
-                                        return 1;
-                                    } else {
-                                        return 0;
-                                    }
-                                });
-
-                                for (var i = 0; i < newArray.length; i++) {
-
-                                    var childRect = newArray[i].view[0].getBoundingClientRect();
-                                    var nextMachineId = newArray[i].orderPosition.nextMachineId;
-                                    var prevMachineId = newArray[i].orderPosition.previousMachineId;
-                                    var nextMachineRect, prevMachineRect;
-                                    var yPrev, yNext;
+                                    var parentRect = bodyElement[0].getBoundingClientRect();
+                                    var rows = scope.rows;
 
 
-                                    for (var j = 0; j < rows.length; j++) {
-                                        if (prevMachineId === rows[j].row.model.machineLink.toString()) {
-                                            prevMachineRect = rows[j].row.$element[0].getBoundingClientRect();
-                                            yPrev = prevMachineRect.top - parentRect.top + rows[j].row.$element[0].clientHeight / 2;
-                                        }
-                                        if (nextMachineId === rows[j].row.model.machineLink.toString()) {
-                                            nextMachineRect = rows[j].row.$element[0].getBoundingClientRect();
-                                            yNext = nextMachineRect.top - parentRect.top + rows[j].row.$element[0].clientHeight / 2;
-                                        }
-                                    }
-
-
-                                    x1 = childRect.left - parentRect.left;
-                                    y1 = childRect.top - parentRect.top;
-
-
-                                    if (newArray[i].orderPosition.positionType === 'start'){
-                                        ctx.moveTo(x1, y1);
-                                        if (newArray.length === 1){
-                                            if (nextMachineId !== null) {
-                                                ctx.lineTo(parentRect.width, yNext);
-                                            }
-                                        }
-                                    } else if (newArray[i].orderPosition.positionType === 'end'){
-                                        if (newArray.length === 1){
-                                            if (prevMachineId !== null) {
-                                                ctx.moveTo(0, yPrev);
-                                            }
-                                        }
-                                        ctx.lineTo(x1, y1);
-                                    } else {
-                                        if (newArray.length === 1) {
-                                            if (prevMachineId !== null) {
-                                                ctx.moveTo(0, yPrev);
-                                                ctx.lineTo(x1, y1);
-                                            }
-                                            if (nextMachineId !== null) {
-                                                ctx.moveTo(x1, y1);
-                                                ctx.lineTo(parentRect.width, yNext);
-                                            }
-                                        } else if (i === 0) {
-                                            if (prevMachineId !== null) {
-                                                ctx.moveTo(0, yPrev);
-                                                ctx.lineTo(x1, y1);
-                                            }
-                                            //backup if failure base
-                                            ctx.moveTo(x1, y1);
-                                        } else if (i === newArray.length - 1){
-                                            ctx.lineTo(x1, y1);
-                                            if (nextMachineId !== null) {
-                                                ctx.lineTo(parentRect.width, yNext);
-                                            }
+                                    newArray.sort(function (a, b) {
+                                        if (a.from < b.from) {
+                                            return -1;
+                                        } else if (a.from > b.from) {
+                                            return 1;
                                         } else {
+                                            return 0;
+                                        }
+                                    });
+
+                                    for (var i = 0; i < newArray.length; i++) {
+
+                                        var childRect = newArray[i].view[0].getBoundingClientRect();
+                                        var nextMachineId = newArray[i].orderPosition.nextMachineId;
+                                        var prevMachineId = newArray[i].orderPosition.previousMachineId;
+                                        var nextMachineRect, prevMachineRect;
+                                        var yPrev, yNext;
+
+
+                                        for (var j = 0; j < rows.length; j++) {
+                                            if (prevMachineId === rows[j].row.model.machineLink.toString()) {
+                                                prevMachineRect = rows[j].row.$element[0].getBoundingClientRect();
+                                                yPrev = prevMachineRect.top - parentRect.top + rows[j].row.$element[0].clientHeight / 2;
+                                            }
+                                            if (nextMachineId === rows[j].row.model.machineLink.toString()) {
+                                                nextMachineRect = rows[j].row.$element[0].getBoundingClientRect();
+                                                yNext = nextMachineRect.top - parentRect.top + rows[j].row.$element[0].clientHeight / 2;
+                                            }
+                                        }
+
+
+                                        x1 = childRect.left - parentRect.left;
+                                        y1 = childRect.top - parentRect.top;
+
+
+                                        if (newArray[i].orderPosition.positionType === 'start') {
+                                            ctx.moveTo(x1, y1);
+                                            if (newArray.length === 1) {
+                                                if (nextMachineId !== null) {
+                                                    ctx.lineTo(parentRect.width, yNext);
+                                                }
+                                            }
+                                        } else if (newArray[i].orderPosition.positionType === 'end') {
+                                            if (newArray.length === 1) {
+                                                if (prevMachineId !== null) {
+                                                    ctx.moveTo(0, yPrev);
+                                                }
+                                            }
                                             ctx.lineTo(x1, y1);
+                                        } else {
+                                            if (newArray.length === 1) {
+                                                if (prevMachineId !== null) {
+                                                    ctx.moveTo(0, yPrev);
+                                                    ctx.lineTo(x1, y1);
+                                                }
+                                                if (nextMachineId !== null) {
+                                                    ctx.moveTo(x1, y1);
+                                                    ctx.lineTo(parentRect.width, yNext);
+                                                }
+                                            } else if (i === 0) {
+                                                if (prevMachineId !== null) {
+                                                    ctx.moveTo(0, yPrev);
+                                                    ctx.lineTo(x1, y1);
+                                                }
+                                                //backup if failure base
+                                                ctx.moveTo(x1, y1);
+                                            } else if (i === newArray.length - 1) {
+                                                ctx.lineTo(x1, y1);
+                                                if (nextMachineId !== null) {
+                                                    ctx.lineTo(parentRect.width, yNext);
+                                                }
+                                            } else {
+                                                ctx.lineTo(x1, y1);
+                                            }
                                         }
                                     }
-                                }
 
-                                ctx.strokeStyle='#FFFF00';
-                                ctx.stroke();
+                                    ctx.strokeStyle = '#FFFF00';
+                                    ctx.stroke();
+                                }
                             }
                         }
-                        );
-}
-
-
-});
-}
-};
-}]);
-}());
+                            );
+                    }
+                });
+            }
+        };
+    }]);
+} ());
 (function(){
     /* global ResizeSensor: false */
     /* global ElementQueries: false */
@@ -1503,16 +1505,16 @@ angular.module('ang-drag-drop',[])
 }());
 
 
-(function(){
+(function () {
     'use strict';
-    angular.module('gantt.selector', ['gantt']).directive('ganttTaskSelector', ['$rootScope', '$document','$compile', function($rootScope, $document, $compile) {
+    angular.module('gantt.selector', ['gantt']).directive('ganttTaskSelector', ['$rootScope', '$document', '$compile', function ($rootScope, $document, $compile) {
         return {
             restrict: 'E',
             require: '^gantt',
             scope: {
                 enabled: '='
             },
-            link: function(scope, element, attrs, ganttCtrl) {
+            link: function (scope, element, attrs, ganttCtrl) {
                 scope.selectedTasks = [];
                 scope.transitSelectedTasks = [];
                 var api = ganttCtrl.gantt.api;
@@ -1525,162 +1527,162 @@ angular.module('ang-drag-drop',[])
                     scope.enabled = true;
                 }
 
-                scope.$watch ('options.enable', function(newValue, oldValue) {
-                  if (newValue !== oldValue) {
-                    scope.enabled = newValue;
-                }
-            });
-
                 scope.api = api;
 
-                var getTasks = function (){
+                var getTasks = function () {
                     return scope.selectedTasks;
                 };
 
                 api.registerMethod('selector', 'getTasks', getTasks, scope);
+                api.registerEvent('selector', 'selectedTasksChanged');
 
-                api.directives.on.new(scope, function(directiveName, currentScope, element) {
-                 if (directiveName === 'ganttBody') {
-                     var bodyScope = currentScope.$new();
-                     bodyScope.pluginScope = scope;
-
-                     var ifElement = $document[0].createElement('div');
-
-                     angular.element(ifElement).attr('data-ng-if', 'enabled && isMouseDown');
-                     angular.element(ifElement).addClass('selector-line');
-                     var compiled = $compile(ifElement)(scope);
-                     element.append(compiled);
-
-
-
-                     var reCalc = function () {
-                      var lineDiv = element[0].querySelector('.selector-line');
-
-                      if (lineDiv){
-                        var y3 = Math.min(y1,y2);
-                        var y4 = Math.max(y1,y2);
-
-                        lineDiv.style.left = x1 + 'px';
-                        lineDiv.style.top = y3 + 'px';
-                        lineDiv.style.width = 2 + 'px';
-                        lineDiv.style.backgroundColor = 'yellow';
-                        lineDiv.style.height = y4 - y3 + 'px';
-                        lineDiv.style.position = 'absolute';
-                    }
-                };
-
-
-                element.bind('mousedown', function(event) {
-                    if (scope.enabled){
-                     bodyScope.pluginScope.newMoveStarted = true;
-                     bodyScope.pluginScope.isMouseDown = true;
-                     var parentRect = this.getBoundingClientRect();
-                     var childRect = event.target.getBoundingClientRect();
-                     x1 = childRect.left - parentRect.left + event.offsetX;
-                     y1 = childRect.top - parentRect.top + event.offsetY;
-                     bodyScope.pluginScope.dateLine = scope.api.core.getDateByPosition(x1);
-                     element.bind('touchmove mousemove', mouseMoveEventHandler);
-                 }
-             });
-
-                element.bind('mouseup', function() {
-                 if (scope.enabled){
-                    element.unbind('touchmove mousemove', mouseMoveEventHandler);
-                    bodyScope.pluginScope.newMoveStarted = false;
-                    bodyScope.pluginScope.isMouseDown = false;
-                    bodyScope.$apply();
-                }
-            });
-
-                var mouseMoveEventHandler = function(event) {
-                    
-                    y2 = event.target.getBoundingClientRect().top - this.getBoundingClientRect().top + event.offsetY;
-
-                    reCalc();                 
-                };
-
-
-
-            }
-
-            if (directiveName === 'ganttRow') {
-                var rowScope = currentScope.$new();
-                rowScope.pluginScope = scope;
-
-                element.bind('mousemove', function() {
-                    if (rowScope.pluginScope.newMoveStarted && rowScope.pluginScope.isMouseDown){
-                        rowScope.pluginScope.newMoveStarted = false;
-                        rowScope.pluginScope.selectedTasks = [];
-                        var parentRect = this.getBoundingClientRect();
-                        var childRect = event.target.getBoundingClientRect();
-                        var x1 = childRect.left - parentRect.left + event.offsetX;
-                        var customDateLine = scope.api.core.getDateByPosition(x1);
-
-                        var currentRowTasks = rowScope.row.visibleTasks;
-                        for (var i = 0; i < currentRowTasks.length; i++) {
-                            if (customDateLine.isAfter(currentRowTasks[i].model.from) && rowScope.pluginScope.selectedTasks.indexOf(currentRowTasks[i]) < 0){
-                                rowScope.pluginScope.selectedTasks.push(currentRowTasks[i]);
-                            }
-                        }
-                        rowScope.$apply();  
-                    }     
+                scope.$watchCollection('selectedTasks', function (newValue, oldValue) {
+                    api.selector.raise.selectedTasksChanged(newValue, oldValue);
                 });
 
-element.bind('mouseenter', function() {
-    if (rowScope.pluginScope.isMouseDown){
-        var currentRowTasks = rowScope.row.visibleTasks;
-        for (var i = 0; i < currentRowTasks.length; i++) {
-            if (rowScope.pluginScope.dateLine.isAfter(currentRowTasks[i].model.from) && rowScope.pluginScope.selectedTasks.indexOf(currentRowTasks[i]) < 0){
-                rowScope.pluginScope.selectedTasks.push(currentRowTasks[i]);
+
+
+                api.directives.on.new(scope, function (directiveName, currentScope, element) {
+                    if (directiveName === 'ganttBody') {
+                        var bodyScope = currentScope.$new();
+                        bodyScope.pluginScope = scope;
+
+                        var ifElement = $document[0].createElement('div');
+
+                        angular.element(ifElement).attr('data-ng-if', 'enabled && isMouseDown');
+                        angular.element(ifElement).addClass('selector-line');
+                        var compiled = $compile(ifElement)(scope);
+                        element.append(compiled);
+
+
+
+                        var reCalc = function () {
+                            var lineDiv = element[0].querySelector('.selector-line');
+
+                            if (lineDiv) {
+                                var y3 = Math.min(y1, y2);
+                                var y4 = Math.max(y1, y2);
+
+                                lineDiv.style.left = x1 + 'px';
+                                lineDiv.style.top = y3 + 'px';
+                                lineDiv.style.width = 2 + 'px';
+                                lineDiv.style.backgroundColor = 'yellow';
+                                lineDiv.style.height = y4 - y3 + 'px';
+                                lineDiv.style.position = 'absolute';
+                            }
+                        };
+
+
+                        element.bind('mousedown', function (event) {
+                            if (scope.enabled) {
+                                bodyScope.pluginScope.newMoveStarted = true;
+                                bodyScope.pluginScope.isMouseDown = true;
+                                var parentRect = this.getBoundingClientRect();
+                                var childRect = event.target.getBoundingClientRect();
+                                x1 = childRect.left - parentRect.left + event.offsetX;
+                                y1 = childRect.top - parentRect.top + event.offsetY;
+                                bodyScope.pluginScope.dateLine = scope.api.core.getDateByPosition(x1);
+                                element.bind('touchmove mousemove', mouseMoveEventHandler);
+                            }
+                        });
+
+                        element.bind('mouseup', function () {
+                            if (scope.enabled) {
+                                element.unbind('touchmove mousemove', mouseMoveEventHandler);
+                                bodyScope.pluginScope.newMoveStarted = false;
+                                bodyScope.pluginScope.isMouseDown = false;
+                                bodyScope.$apply();
+                            }
+                        });
+
+                        var mouseMoveEventHandler = function (event) {
+
+                            y2 = event.target.getBoundingClientRect().top - this.getBoundingClientRect().top + event.offsetY;
+
+                            reCalc();
+                        };
+
+
+
+                    }
+
+                    if (directiveName === 'ganttRow') {
+                        var rowScope = currentScope.$new();
+                        rowScope.pluginScope = scope;
+
+                        element.bind('mousemove', function () {
+                            if (rowScope.pluginScope.newMoveStarted && rowScope.pluginScope.isMouseDown) {
+                                rowScope.pluginScope.newMoveStarted = false;
+                                rowScope.pluginScope.selectedTasks = [];
+                                var parentRect = this.getBoundingClientRect();
+                                var childRect = event.target.getBoundingClientRect();
+                                var x1 = childRect.left - parentRect.left + event.offsetX;
+                                var customDateLine = scope.api.core.getDateByPosition(x1);
+
+                                var currentRowTasks = rowScope.row.visibleTasks;
+                                for (var i = 0; i < currentRowTasks.length; i++) {
+                                    if (customDateLine.isAfter(currentRowTasks[i].model.from) && rowScope.pluginScope.selectedTasks.indexOf(currentRowTasks[i].model) < 0) {
+                                        rowScope.pluginScope.selectedTasks.push(currentRowTasks[i].model);
+                                    }
+                                }
+                                rowScope.$apply();
+                            }
+                        });
+
+                        element.bind('mouseenter', function () {
+                            if (rowScope.pluginScope.isMouseDown) {
+                                var currentRowTasks = rowScope.row.visibleTasks;
+                                for (var i = 0; i < currentRowTasks.length; i++) {
+                                    if (rowScope.pluginScope.dateLine.isAfter(currentRowTasks[i].model.from) && rowScope.pluginScope.selectedTasks.indexOf(currentRowTasks[i].model) < 0) {
+                                        rowScope.pluginScope.selectedTasks.push(currentRowTasks[i].model);
+                                    }
+                                }
+                                rowScope.$apply();
+                            }
+                        });
+
+
+                        element.bind('mouseleave', function (event) {
+                            if (rowScope.pluginScope.isMouseDown) {
+                                var currentRowTasks = rowScope.row.visibleTasks;
+
+                                if ((event.offsetY < 2 && y1 < y2) || (event.offsetY === event.currentTarget.scrollHeight && y1 > y2)) {
+                                    for (var i = 0; i < currentRowTasks.length; i++) {
+                                        var index = rowScope.pluginScope.selectedTasks.indexOf(currentRowTasks[i].model);
+                                        if (rowScope.pluginScope.dateLine.isAfter(currentRowTasks[i].model.from) && index > -1) {
+                                            rowScope.pluginScope.selectedTasks.splice(index, 1);
+                                        }
+                                    }
+                                }
+
+                                rowScope.$apply();
+                            }
+                        });
+                    }
+
+                    if (directiveName === 'ganttTask') {
+
+
+                        var taskScope = currentScope.$new();
+                        taskScope.pluginScope = scope;
+
+                        element.bind('click', function () {
+                            if (scope.enabled) {
+                                var index = taskScope.pluginScope.selectedTasks.indexOf(currentScope.task.model);
+
+                                if (index === -1) {
+                                    taskScope.pluginScope.selectedTasks.push(currentScope.task.model);
+                                } else {
+                                    taskScope.pluginScope.selectedTasks.splice(index, 1);
+                                }
+                            }
+                        });
+                    }
+                });
             }
-        }
-        rowScope.$apply();
-    }                    
-});
-
-
-element.bind('mouseleave', function(event) {
-    if (rowScope.pluginScope.isMouseDown){
-        var currentRowTasks = rowScope.row.visibleTasks;
-
-        if ((event.offsetY < 2 && y1 < y2) || (event.offsetY === event.currentTarget.scrollHeight && y1 > y2)){
-         for (var i = 0; i < currentRowTasks.length; i++) {
-            var index = rowScope.pluginScope.selectedTasks.indexOf(currentRowTasks[i]);
-            if (rowScope.pluginScope.dateLine.isAfter(currentRowTasks[i].model.from) && index > -1){
-              rowScope.pluginScope.selectedTasks.splice(index, 1);
-          }
-      }
-  }
-
-  rowScope.$apply();
-}                    
-});
-}
-
-if (directiveName === 'ganttTask') {
-
-
-    var taskScope = currentScope.$new();
-    taskScope.pluginScope = scope;
-
-    element.bind('click', function (){
-     if (scope.enabled){
-        var index = taskScope.pluginScope.selectedTasks.indexOf(currentScope.task);
-
-        if (index === -1){
-            taskScope.pluginScope.selectedTasks.push(currentScope.task);
-        } else {
-            taskScope.pluginScope.selectedTasks.splice(index, 1);
-        }
-    }
-});
-}
-});
-
-}
-};
-}]);
-}());
+        };
+    }]);
+} ());
 (function(){
     'use strict';
 
