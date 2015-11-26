@@ -186,6 +186,7 @@
         $scope.gantt.api.registerMethod('tree', 'collapse', collapseRow, this);
 
         $scope.gantt.api.registerEvent('tree', 'collapsed');
+        $scope.gantt.api.registerEvent('tree', 'treeLableClicked');
 
         $scope.gantt.api.registerMethod('tree', 'getHierarchy', getHierarchy, this);
 
@@ -244,6 +245,10 @@
 
         $scope.isCollapseDisabled = function(){
             return !$scope.$parent.childrenRows || $scope.$parent.childrenRows.length === 0;
+        };
+        
+        $scope.treeLableClicked = function(){
+          $scope.gantt.api.tree.raise.treeLableClicked($scope.row.model);
         };
 
         $scope.getValue = function() {

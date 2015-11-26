@@ -1,5 +1,5 @@
 /*
-Project: cti-angular-gantt v2.0.19 - Gantt chart component for AngularJS
+Project: cti-angular-gantt v2.0.20 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -2879,6 +2879,7 @@ angular.module('ang-drag-drop',[])
         $scope.gantt.api.registerMethod('tree', 'collapse', collapseRow, this);
 
         $scope.gantt.api.registerEvent('tree', 'collapsed');
+        $scope.gantt.api.registerEvent('tree', 'treeLableClicked');
 
         $scope.gantt.api.registerMethod('tree', 'getHierarchy', getHierarchy, this);
 
@@ -2937,6 +2938,10 @@ angular.module('ang-drag-drop',[])
 
         $scope.isCollapseDisabled = function(){
             return !$scope.$parent.childrenRows || $scope.$parent.childrenRows.length === 0;
+        };
+        
+        $scope.treeLableClicked = function(){
+          $scope.gantt.api.tree.raise.treeLableClicked($scope.row.model);
         };
 
         $scope.getValue = function() {
@@ -3200,7 +3205,7 @@ angular.module('gantt.tree.templates', []).run(['$templateCache', function($temp
         '                \'glyphicon-chevron-right\': collapsed, \'glyphicon-chevron-down\': !collapsed,\n' +
         '                \'gantt-tree-collapsed\': collapsed, \'gantt-tree-expanded\': !collapsed}"></span>\n' +
         '            </a>\n' +
-        '            <span gantt-row-label class="gantt-label-text" gantt-bind-compile-html="getRowContent()"/>\n' +
+        '            <span gantt-row-label ng-click="treeLableClicked()" class="gantt-label-text" gantt-bind-compile-html="getRowContent()"/>\n' +
         '        </div>\n' +
         '    </div>\n' +
         '</div>\n' +
