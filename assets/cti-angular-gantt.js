@@ -1,5 +1,5 @@
 /*
-Project: cti-angular-gantt v2.0.20 - Gantt chart component for AngularJS
+Project: cti-angular-gantt v2.0.21 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -1414,6 +1414,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.visibleHeaders = [];
 
             this.scrollAnchor = undefined;
+            this.isNextAnchorRefused = false;
 
             // Add a watcher if a view related setting changed from outside of the Gantt. Update the gantt accordingly if so.
             // All those changes need a recalculation of the header columns
@@ -1461,10 +1462,15 @@ Github: https://github.com/angular-gantt/angular-gantt.git
             this.gantt.api.registerMethod('columns', 'getColumnsWidth', this.getColumnsWidth, this);
             this.gantt.api.registerMethod('columns', 'getColumnsWidthToFit', this.getColumnsWidthToFit, this);
             this.gantt.api.registerMethod('columns', 'getDateRange', this.getDateRange, this);
+            this.gantt.api.registerMethod('columns', 'refuseNextAnchorSet', this.refuseNextAnchorSet, this);
 
             this.gantt.api.registerEvent('columns', 'clear');
             this.gantt.api.registerEvent('columns', 'generate');
             this.gantt.api.registerEvent('columns', 'refresh');
+        };
+        
+        ColumnsManager.prototype.refuseNextAnchorSet = function() {
+            this.isNextAnchorRefused = true;
         };
 
         ColumnsManager.prototype.setScrollAnchor = function() {
@@ -1473,17 +1479,19 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                 var center = el.scrollLeft + el.offsetWidth / 2;
 
                 this.scrollAnchor = this.gantt.getDateByPosition(center);
-            }
+            } 
         };
 
         ColumnsManager.prototype.scrollToScrollAnchor = function() {
             var self = this;
 
-            if (this.columns.length > 0 && this.scrollAnchor !== undefined) {
+            if (this.columns.length > 0 && this.scrollAnchor !== undefined  && this.isNextAnchorRefused === false) {
                 // Ugly but prevents screen flickering (unlike $timeout)
                 this.gantt.$scope.$$postDigest(function() {
                     self.gantt.api.scroll.toDate(self.scrollAnchor);
                 });
+            }   else {
+                this.isNextAnchorRefused = false;
             }
         };
 
@@ -1835,7 +1843,6 @@ Github: https://github.com/angular-gantt/angular-gantt.git
         return ColumnsManager;
     }]);
 }());
-
 (function(){
     'use strict';
     angular.module('gantt').factory('GanttHeaderGenerator', ['GanttColumnHeader', function(ColumnHeader) {

@@ -18,6 +18,7 @@
             this.visibleHeaders = [];
 
             this.scrollAnchor = undefined;
+            this.isNextAnchorRefused = false;
 
             // Add a watcher if a view related setting changed from outside of the Gantt. Update the gantt accordingly if so.
             // All those changes need a recalculation of the header columns
@@ -65,10 +66,15 @@
             this.gantt.api.registerMethod('columns', 'getColumnsWidth', this.getColumnsWidth, this);
             this.gantt.api.registerMethod('columns', 'getColumnsWidthToFit', this.getColumnsWidthToFit, this);
             this.gantt.api.registerMethod('columns', 'getDateRange', this.getDateRange, this);
+            this.gantt.api.registerMethod('columns', 'refuseNextAnchorSet', this.refuseNextAnchorSet, this);
 
             this.gantt.api.registerEvent('columns', 'clear');
             this.gantt.api.registerEvent('columns', 'generate');
             this.gantt.api.registerEvent('columns', 'refresh');
+        };
+        
+        ColumnsManager.prototype.refuseNextAnchorSet = function() {
+            this.isNextAnchorRefused = true;
         };
 
         ColumnsManager.prototype.setScrollAnchor = function() {
@@ -77,17 +83,19 @@
                 var center = el.scrollLeft + el.offsetWidth / 2;
 
                 this.scrollAnchor = this.gantt.getDateByPosition(center);
-            }
+            } 
         };
 
         ColumnsManager.prototype.scrollToScrollAnchor = function() {
             var self = this;
 
-            if (this.columns.length > 0 && this.scrollAnchor !== undefined) {
+            if (this.columns.length > 0 && this.scrollAnchor !== undefined  && this.isNextAnchorRefused === false) {
                 // Ugly but prevents screen flickering (unlike $timeout)
                 this.gantt.$scope.$$postDigest(function() {
                     self.gantt.api.scroll.toDate(self.scrollAnchor);
                 });
+            }   else {
+                this.isNextAnchorRefused = false;
             }
         };
 
