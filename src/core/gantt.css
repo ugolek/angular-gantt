@@ -4,7 +4,7 @@
 
 .gantt-side-content,
 .gantt-body {
-    pointer-events: none;
+    pointer-events: auto;
 }
 
 .gantt-side-background,
