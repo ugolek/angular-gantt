@@ -44,10 +44,6 @@
 
                         bodyElement.prepend(canvas);
                         var ctx = canvas.getContext('2d');
-
-                        api.registerMethod('associator', 'drawAssociatorLines', drawAssociatorLines, scope);
-                        
-                        scope.$watchCollection('tasks', drawAssociatorLines);
                         
                         var drawAssociatorLines = function () {
                              if (scope.enabled) {
@@ -147,7 +143,13 @@
                                     ctx.stroke();
                                 }
                             }
-                        }
+                        };
+
+                        api.registerMethod('associator', 'drawAssociatorLines', drawAssociatorLines, scope);
+                        
+                        scope.$watchCollection('tasks', drawAssociatorLines);
+                        
+                        
                     }
                 });
             }

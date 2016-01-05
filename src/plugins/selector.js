@@ -37,8 +37,8 @@
                         bodyScope.pluginScope = scope;
 
                         var ifElement = $document[0].createElement('div');
-                        ifElement.setAttribute("class", "selector-line");
-                        ifElement.setAttribute("data-ng-if", "enabled && isMouseDown");
+                        ifElement.setAttribute('class', 'selector-line');
+                        ifElement.setAttribute('data-ng-if', 'enabled && isMouseDown');
 
                         var compiled = $compile(ifElement)(scope);
                         element.append(compiled);
@@ -47,49 +47,11 @@
                     }
                     
                      if (directiveName === 'ganttTask' && scope.enabled) {
-                         element[0].addEventListener("click", taskClickHandler(currentScope.task));
+                         element[0].addEventListener('click', taskClickHandler(currentScope.task));
                          scope.taskWritingOnClick.push(currentScope.task);
                      }
                 });
-
-
-                scope.$watch('enabled', function (newValue, oldValue) {
-                    if (newValue) {
-                        scope.ganttCtrl.gantt.body.$element[0].addEventListener('mousedown', bodyMouseDownHandler);
-                        scope.ganttCtrl.gantt.body.$element[0].addEventListener('mouseup', bodyMouseUpHandler);
-
-                        scope.ganttCtrl.gantt.rowsManager.visibleRows.forEach(function (row) {
-                            row.$element[0].addEventListener('mousemove', rowMouseMoveHandler(row));
-                            row.$element[0].addEventListener("mouseenter", rowMouseEnterHandler(row));
-                            row.$element[0].addEventListener("mouseleave", rowMouseLeaveHandler(row));
-
-                            row.visibleTasks.forEach(function (task) {
-                                task.$element[0].addEventListener("click", taskClickHandler(task));
-                                scope.taskWritingOnClick.push(task);
-                            });
-                        });
-                    }
-                    else if (newValue == false && oldValue == true){
-                        scope.ganttCtrl.gantt.body.$element[0].removeEventListener('mousedown', bodyMouseDownHandler);
-                        scope.ganttCtrl.gantt.body.$element[0].removeEventListener('mouseup', bodyMouseUpHandler);
-
-                        scope.ganttCtrl.gantt.rowsManager.visibleRows.forEach(function (row) {
-                            row.$element[0].removeEventListener('mousemove', rowMouseMoveHandler(row));
-                            row.$element[0].removeEventListener("mouseenter", rowMouseEnterHandler(row));
-                            row.$element[0].removeEventListener("mouseleave", rowMouseLeaveHandler(row));
-
-                            scope.taskWritingOnClick.forEach(function (task) {
-                                task.$elelment[0].removeEventListener("click", taskClickHandler(task));
-                                scope.taskWritingOnClick = [];
-                            });
-                        });
-                    }
-                });
-
-                scope.$watchCollection('selectedTasks', function (newValue, oldValue) {
-                    api.selector.raise.selectedTasksChanged(newValue, oldValue);
-                }); 
-
+                
                 var bodyMouseDownHandler = function (event) {
                     if (scope.enabled) {
                         scope.newMoveStarted = true;
@@ -102,7 +64,7 @@
                         scope.ganttCtrl.gantt.body.$element[0].addEventListener('touchmove', mouseMoveEventHandler);
                         scope.ganttCtrl.gantt.body.$element[0].addEventListener('mousemove', mouseMoveEventHandler);
                     }
-                }
+                };
 
                 var bodyMouseUpHandler = function () {
                     if (scope.enabled) {
@@ -112,7 +74,7 @@
                         scope.isMouseDown = false;
                         scope.$apply();
                     }
-                }
+                };
 
                 var rowMouseMoveHandler = function (row) {
 
@@ -133,9 +95,8 @@
                             }
                             scope.$apply();
                         }
-                    }
-
-                }
+                    };
+                };
                 var rowMouseEnterHandler = function (row) {
                     return function () {
                         if (scope.isMouseDown) {
@@ -147,9 +108,9 @@
                             }
                             scope.$apply();
                         }
-                    }
+                    };
 
-                }
+                };
                 var rowMouseLeaveHandler = function (row) {
                     return function () {
                         if (scope.isMouseDown) {
@@ -166,8 +127,8 @@
 
                             scope.$apply();
                         }
-                    }
-                }
+                    };
+                };
 
                 var mouseMoveEventHandler = function (event) {
                     y2 = event.target.getBoundingClientRect().top - this.getBoundingClientRect().top + event.offsetY;
@@ -187,9 +148,9 @@
                         }
                     }
                     scope.$apply();
-                   }
+                   };
                    
-                }
+                };
 
                 var reCalc = function () {
                     var lineDiv = scope.compiledElement[0].nextSibling;
@@ -208,7 +169,42 @@
                 };
 
 
-                
+                scope.$watch('enabled', function (newValue, oldValue) {
+                    if (newValue) {
+                        scope.ganttCtrl.gantt.body.$element[0].addEventListener('mousedown', bodyMouseDownHandler);
+                        scope.ganttCtrl.gantt.body.$element[0].addEventListener('mouseup', bodyMouseUpHandler);
+
+                        scope.ganttCtrl.gantt.rowsManager.visibleRows.forEach(function (row) {
+                            row.$element[0].addEventListener('mousemove', rowMouseMoveHandler(row));
+                            row.$element[0].addEventListener('mouseenter', rowMouseEnterHandler(row));
+                            row.$element[0].addEventListener('mouseleave', rowMouseLeaveHandler(row));
+
+                            row.visibleTasks.forEach(function (task) {
+                                task.$element[0].addEventListener('click', taskClickHandler(task));
+                                scope.taskWritingOnClick.push(task);
+                            });
+                        });
+                    }
+                    else if (newValue === false && oldValue === true){
+                        scope.ganttCtrl.gantt.body.$element[0].removeEventListener('mousedown', bodyMouseDownHandler);
+                        scope.ganttCtrl.gantt.body.$element[0].removeEventListener('mouseup', bodyMouseUpHandler);
+
+                        scope.ganttCtrl.gantt.rowsManager.visibleRows.forEach(function (row) {
+                            row.$element[0].removeEventListener('mousemove', rowMouseMoveHandler(row));
+                            row.$element[0].removeEventListener('mouseenter', rowMouseEnterHandler(row));
+                            row.$element[0].removeEventListener('mouseleave', rowMouseLeaveHandler(row));
+
+                            scope.taskWritingOnClick.forEach(function (task) {
+                                task.$elelment[0].removeEventListener('click', taskClickHandler(task));
+                                scope.taskWritingOnClick = [];
+                            });
+                        });
+                    }
+                });
+
+                scope.$watchCollection('selectedTasks', function (newValue, oldValue) {
+                    api.selector.raise.selectedTasksChanged(newValue, oldValue);
+                }); 
             }
         };
     }]);
