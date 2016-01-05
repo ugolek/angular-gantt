@@ -44,13 +44,18 @@
 
                         bodyElement.prepend(canvas);
                         var ctx = canvas.getContext('2d');
-                        scope.$watchCollection('tasks', function (newArray) {
-                            if (scope.enabled) {
+
+                        api.registerMethod('associator', 'drawAssociatorLines', drawAssociatorLines, scope);
+                        
+                        scope.$watchCollection('tasks', drawAssociatorLines);
+                        
+                        var drawAssociatorLines = function () {
+                             if (scope.enabled) {
                                 ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-                                if (newArray.length === 1 && newArray[0].orderPosition === 'single') {
+                                if (scope.tasks.length === 1 && scope.tasks[0].orderPosition === 'single') {
                                     return;
-                                } else if (newArray.length > 0) {
+                                } else if (scope.tasks.length > 0) {
                                     canvas.style.width = '100%';
                                     canvas.style.height = '100%';
 
@@ -61,7 +66,7 @@
                                     var rows = scope.rows;
 
 
-                                    newArray.sort(function (a, b) {
+                                    scope.tasks.sort(function (a, b) {
                                         if (a.from < b.from) {
                                             return -1;
                                         } else if (a.from > b.from) {
@@ -71,11 +76,11 @@
                                         }
                                     });
 
-                                    for (var i = 0; i < newArray.length; i++) {
+                                    for (var i = 0; i < scope.tasks.length; i++) {
 
-                                        var childRect = newArray[i].view[0].getBoundingClientRect();
-                                        var nextMachineId = newArray[i].orderPosition.nextMachineId;
-                                        var prevMachineId = newArray[i].orderPosition.previousMachineId;
+                                        var childRect = scope.tasks[i].view[0].getBoundingClientRect();
+                                        var nextMachineId = scope.tasks[i].orderPosition.nextMachineId;
+                                        var prevMachineId = scope.tasks[i].orderPosition.previousMachineId;
                                         var nextMachineRect, prevMachineRect;
                                         var yPrev, yNext;
 
@@ -96,22 +101,22 @@
                                         y1 = childRect.top - parentRect.top;
 
 
-                                        if (newArray[i].orderPosition.positionType === 'start') {
+                                        if (scope.tasks[i].orderPosition.positionType === 'start') {
                                             ctx.moveTo(x1, y1);
-                                            if (newArray.length === 1) {
+                                            if (scope.tasks.length === 1) {
                                                 if (nextMachineId !== null) {
                                                     ctx.lineTo(parentRect.width, yNext);
                                                 }
                                             }
-                                        } else if (newArray[i].orderPosition.positionType === 'end') {
-                                            if (newArray.length === 1) {
+                                        } else if (scope.tasks[i].orderPosition.positionType === 'end') {
+                                            if (scope.tasks.length === 1) {
                                                 if (prevMachineId !== null) {
                                                     ctx.moveTo(0, yPrev);
                                                 }
                                             }
                                             ctx.lineTo(x1, y1);
                                         } else {
-                                            if (newArray.length === 1) {
+                                            if (scope.tasks.length === 1) {
                                                 if (prevMachineId !== null) {
                                                     ctx.moveTo(0, yPrev);
                                                     ctx.lineTo(x1, y1);
@@ -127,7 +132,7 @@
                                                 }
                                                 //backup if failure base
                                                 ctx.moveTo(x1, y1);
-                                            } else if (i === newArray.length - 1) {
+                                            } else if (i === scope.tasks.length - 1) {
                                                 ctx.lineTo(x1, y1);
                                                 if (nextMachineId !== null) {
                                                     ctx.lineTo(parentRect.width, yNext);
@@ -143,7 +148,6 @@
                                 }
                             }
                         }
-                            );
                     }
                 });
             }
