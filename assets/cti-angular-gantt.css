@@ -2,11 +2,12 @@
     line-height: normal;
 }
 
-.gantt-side-content,
+
 .gantt-body {
-    pointer-events: auto;
+    pointer-events: none;
 }
 
+.gantt-side-content,
 .gantt-side-background,
 .gantt-body-background,
 .gantt-row {
