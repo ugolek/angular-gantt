@@ -1,5 +1,5 @@
 /*
-Project: cti-angular-gantt v2.0.23 - Gantt chart component for AngularJS
+Project: cti-angular-gantt v2.0.24 - Gantt chart component for AngularJS
 Authors: Marco Schweighauser, Rémi Alvergnat
 License: MIT
 Homepage: http://www.angular-gantt.com
@@ -202,7 +202,7 @@ Github: https://github.com/angular-gantt/angular-gantt.git
                             row.$element[0].removeEventListener('mouseleave', rowMouseLeaveHandler(row));
 
                             scope.taskWritingOnClick.forEach(function (task) {
-                                task.$elelment[0].removeEventListener('click', taskClickHandler(task));
+                                task.$element[0].removeEventListener('click', taskClickHandler(task));
                                 scope.taskWritingOnClick = [];
                             });
                         });

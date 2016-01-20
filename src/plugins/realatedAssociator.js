@@ -10,6 +10,7 @@
             },
             link: function (scope, element, attrs, ganttCtrl) {
                 var api = ganttCtrl.gantt.api;
+                scope.ganttCtrl = ganttCtrl;
                 var x1, y1;
                 scope.rows = [];
 
@@ -27,9 +28,6 @@
 
 
                 api.directives.on.new(scope, function (directiveName, bodyScope, bodyElement) {
-                    if (directiveName === 'ganttRow') {
-                        scope.rows.push(bodyScope);
-                    }
                     if (directiveName === 'ganttBody') {
                         var boundsScope = bodyScope.$new();
                         boundsScope.pluginScope = scope;
@@ -59,7 +57,7 @@
                                     canvas.height = canvas.offsetHeight;
 
                                     var parentRect = bodyElement[0].getBoundingClientRect();
-                                    var rows = scope.rows;
+                                    var rows = scope.ganttCtrl.gantt.rowsManager.visibleRows;
 
 
                                     scope.tasks.sort(function (a, b) {
@@ -81,14 +79,14 @@
                                         var yPrev, yNext;
 
 
-                                        for (var j = 0; j < rows.length; j++) {
-                                            if (prevMachineId === rows[j].row.model.machineLink.toString()) {
-                                                prevMachineRect = rows[j].row.$element[0].getBoundingClientRect();
-                                                yPrev = prevMachineRect.top - parentRect.top + rows[j].row.$element[0].clientHeight / 2;
+                                          for (var j = 0; j < rows.length; j++) {
+                                            if (prevMachineId === rows[j].model.machineLink.toString()) {
+                                                prevMachineRect = rows[j].$element[0].getBoundingClientRect();
+                                                yPrev = prevMachineRect.top - parentRect.top + rows[j].$element[0].clientHeight / 2;
                                             }
-                                            if (nextMachineId === rows[j].row.model.machineLink.toString()) {
-                                                nextMachineRect = rows[j].row.$element[0].getBoundingClientRect();
-                                                yNext = nextMachineRect.top - parentRect.top + rows[j].row.$element[0].clientHeight / 2;
+                                            if (nextMachineId === rows[j].model.machineLink.toString()) {
+                                                nextMachineRect = rows[j].$element[0].getBoundingClientRect();
+                                                yNext = nextMachineRect.top - parentRect.top + rows[j].$element[0].clientHeight / 2;
                                             }
                                         }
 

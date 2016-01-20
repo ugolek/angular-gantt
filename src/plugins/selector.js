@@ -195,7 +195,7 @@
                             row.$element[0].removeEventListener('mouseleave', rowMouseLeaveHandler(row));
 
                             scope.taskWritingOnClick.forEach(function (task) {
-                                task.$elelment[0].removeEventListener('click', taskClickHandler(task));
+                                task.$element[0].removeEventListener('click', taskClickHandler(task));
                                 scope.taskWritingOnClick = [];
                             });
                         });
