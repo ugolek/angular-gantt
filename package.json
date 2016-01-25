@@ -56,7 +56,6 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "cti-angular-ui-tree": "0.0.2",
     "grunt": "^0.4.5"
   }
 }
